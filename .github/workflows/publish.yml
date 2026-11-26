@@ -2,7 +2,7 @@ name: Publish signed Android APK
 on:
   push:
     branches: [main]
-    paths: [release.json]
+    paths: [release.json, publish.py, .github/workflows/publish.yml]
   workflow_dispatch:
 
 permissions:
@@ -20,6 +20,11 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
+      - name: Android signing verifier
+        uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd
+        with:
+          packages: 'build-tools;36.0.0'
+          log-accepted-android-sdk-licenses: false
       - name: Verify and publish signed APK
         env:
           GH_TOKEN: ${{ github.token }}

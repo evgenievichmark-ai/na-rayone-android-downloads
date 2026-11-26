@@ -71,9 +71,7 @@ def main():
                         '--output', str(apk), ORIGIN + f'na-rayone-mvp-{version}.apk'], check=True)
         if apk.stat().st_size != size or hashlib.sha256(apk.read_bytes()).hexdigest() != sha:
             raise ValueError('Origin APK differs from the CI release')
-        tools = Path(os.environ['ANDROID_HOME']) / 'build-tools'
-        sdk = max((d for d in tools.iterdir() if re.fullmatch(r'\d+\.\d+\.\d+', d.name)),
-                  key=lambda d: tuple(map(int, d.name.split('.'))))
+        sdk = Path(os.environ['ANDROID_HOME']) / 'build-tools' / '36.0.0'
         signers = subprocess.check_output([sdk / 'apksigner', 'verify', '--print-certs', apk], text=True)
         if re.findall(r'^Signer #\d+ certificate SHA-256 digest: (\w+)$', signers, re.M) != [SIGNER]:
             raise ValueError('Unexpected Android signing certificate')
