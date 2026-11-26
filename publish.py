@@ -23,7 +23,19 @@ def release_info(tag):
     except HTTPError as exc:
         if exc.code != 404:
             raise
-        return None
+    # The by-tag endpoint only guarantees published releases. An authenticated listing includes drafts.
+    page = 1
+    while True:
+        listing = Request(f'https://api.github.com/repos/{REPO}/releases?per_page=100&page={page}',
+                          headers=req.headers)
+        with urlopen(listing, timeout=20) as res:
+            releases = json.load(res)
+        for release in releases:
+            if release['tag_name'] == tag:
+                return release
+        if len(releases) < 100:
+            return None
+        page += 1
 
 
 def gh(*args):
